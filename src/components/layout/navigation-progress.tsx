@@ -42,10 +42,14 @@ export function NavigationProgress() {
 
       // Only for internal navigation links
       const anchor = target.closest("a");
-      if (anchor) {
-        const href = anchor.getAttribute("href");
-        if (!href || href.startsWith("http") || href.startsWith("#")) return;
-      }
+      if (!anchor) return;
+
+      const href = anchor.getAttribute("href");
+      if (!href || href.startsWith("http") || href.startsWith("#")) return;
+
+      // Skip if navigating to the current page
+      const currentPath = window.location.pathname + window.location.search;
+      if (href === currentPath || href === window.location.pathname) return;
 
       // Start progress bar
       setVisible(true);
