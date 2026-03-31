@@ -1,4 +1,4 @@
-# WeeklyFresh
+# 🍽 WeeklyFresh
 
 Planificador semanal de comidas. Explora recetas, organiza tu semana y genera listas de compra.
 
