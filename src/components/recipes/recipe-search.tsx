@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { navigateWithProgress } from "@/lib/navigation";
 import { useRef, useState } from "react";
 import { Search, LayoutGrid, List, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -46,7 +47,7 @@ export function RecipeSearch({ utensilOptions }: RecipeSearchProps) {
       }
     }
     if (resetPage) params.delete("pagina");
-    router.replace(`${pathname}?${params.toString()}`);
+    navigateWithProgress(router, `${pathname}?${params.toString()}`, "replace");
   }
 
   function handleSearchChange(value: string) {

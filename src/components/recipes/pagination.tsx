@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
+import { navigateWithProgress } from "@/lib/navigation";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -22,7 +23,7 @@ export function Pagination({ page, totalPages }: PaginationProps) {
     } else {
       params.delete("pagina");
     }
-    router.replace(`/recetas?${params.toString()}`);
+    navigateWithProgress(router, `/recetas?${params.toString()}`, "replace");
   }
 
   return (

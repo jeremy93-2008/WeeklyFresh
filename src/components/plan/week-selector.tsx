@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { navigateWithProgress } from "@/lib/navigation";
 import {
   startOfWeek,
   addWeeks,
@@ -48,7 +49,7 @@ export function WeekSelector({ basePath, selectedWeek }: WeekSelectorProps) {
   const weeks = Array.from({ length: 4 }, (_, i) => addWeeks(windowStart, i));
 
   function selectWeek(monday: Date) {
-    router.push(`${basePath}?week=${toDateString(monday)}`);
+    navigateWithProgress(router, `${basePath}?week=${toDateString(monday)}`);
   }
 
   return (

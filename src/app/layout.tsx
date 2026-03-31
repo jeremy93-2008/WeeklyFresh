@@ -7,7 +7,6 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { NavWrapper } from "@/components/layout/nav-wrapper";
 import { NavigationProgress } from "@/components/layout/navigation-progress";
-import { Suspense } from "react";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -41,9 +40,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <TooltipProvider>
-              <Suspense>
-                <NavigationProgress />
-              </Suspense>
+              <NavigationProgress />
               <NavWrapper>{children}</NavWrapper>
               <Toaster />
             </TooltipProvider>
