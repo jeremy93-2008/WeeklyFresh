@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { UserButton } from "@clerk/nextjs";
 import { UtensilsCrossed } from "lucide-react";
 import { NAV_ITEMS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./theme-toggle";
+import { AuthButton } from "./auth-button";
 
 export function DesktopSidebar() {
   const pathname = usePathname();
@@ -41,7 +41,7 @@ export function DesktopSidebar() {
       </nav>
 
       <div className="flex items-center justify-between border-t p-3">
-        <UserButton />
+        <AuthButton />
         <ThemeToggle />
       </div>
     </aside>
