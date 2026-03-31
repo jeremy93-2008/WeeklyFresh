@@ -13,7 +13,7 @@ export function DesktopSidebar() {
 
   return (
     <aside className="fixed left-0 inset-y-0 z-50 hidden w-60 flex-col border-r bg-card md:flex">
-      <Link href="/" className="flex h-14 items-center gap-2 border-b px-4 hover:opacity-80">
+      <Link href="/recetas" className="flex h-14 items-center gap-2 border-b px-4 hover:opacity-80">
         <UtensilsCrossed className="h-6 w-6 text-primary" />
         <span className="text-lg font-semibold">WeeklyFresh</span>
       </Link>

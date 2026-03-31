@@ -8,7 +8,7 @@ import {
   weeklyPlanIngredientChecks,
   ingredients,
 } from "@/db/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getPlanForUser } from "@/lib/plan-permissions";
 
@@ -51,22 +51,21 @@ export async function confirmPlan(
       }))
     );
 
+    // Single query for all ingredients across all recipes (no N+1)
     const recipeIds = planRecipes.map((r) => r.recipeId);
-    for (const recipeId of recipeIds) {
-      const recipeIngredients = await tx
-        .select({ id: ingredients.id })
-        .from(ingredients)
-        .where(eq(ingredients.recipeId, recipeId));
+    const allIngredients = await tx
+      .select({ id: ingredients.id })
+      .from(ingredients)
+      .where(inArray(ingredients.recipeId, recipeIds));
 
-      if (recipeIngredients.length > 0) {
-        await tx.insert(weeklyPlanIngredientChecks).values(
-          recipeIngredients.map((ing) => ({
-            planId: plan.id,
-            ingredientId: ing.id,
-            checked: false,
-          }))
-        );
-      }
+    if (allIngredients.length > 0) {
+      await tx.insert(weeklyPlanIngredientChecks).values(
+        allIngredients.map((ing) => ({
+          planId: plan.id,
+          ingredientId: ing.id,
+          checked: false,
+        }))
+      );
     }
   });
 

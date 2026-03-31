@@ -2,16 +2,8 @@
 
 import { useState, useTransition } from "react";
 import Image from "next/image";
-import { X, Plus, LayoutGrid, List, ChevronLeft, ChevronRight, MoreVertical, Eye, Copy, Pencil, Trash2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { X, Plus, LayoutGrid, List, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Select,
   SelectContent,
@@ -23,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { DAY_NAMES } from "@/lib/constants";
 import { getImageUrl } from "@/lib/image-utils";
 import { confirmPlan } from "@/actions/plans";
-import { deleteRecipe } from "@/actions/recipes";
+import { RecipeActions } from "./recipe-actions";
 import { TruncatedText } from "@/components/ui/truncated-text";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -45,63 +37,6 @@ interface AvailableRecipe {
 interface PlanBuilderProps {
   weekStart: string;
   availableRecipes: AvailableRecipe[];
-}
-
-function RecipeActions({
-  recipe,
-  onAdd,
-}: {
-  recipe: AvailableRecipe;
-  onAdd: () => void;
-}) {
-  const router = useRouter();
-
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger
-        className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-muted"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <MoreVertical className="h-4 w-4 text-muted-foreground" />
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <a href={`/recetas/${recipe.id}`}>
-          <DropdownMenuItem>
-            <Eye className="mr-2 h-4 w-4" />
-            Ver receta
-          </DropdownMenuItem>
-        </a>
-        <DropdownMenuItem onClick={onAdd}>
-          <Plus className="mr-2 h-4 w-4" />
-          Agregar al plan
-        </DropdownMenuItem>
-        {!recipe.isHellofresh && (
-          <>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => router.push(`/recetas/${recipe.id}/editar`)}>
-              <Pencil className="mr-2 h-4 w-4" />
-              Editar
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="text-destructive"
-              onClick={async () => {
-                if (!confirm("¿Eliminar esta receta?")) return;
-                try {
-                  await deleteRecipe(recipe.id);
-                  toast.success("Receta eliminada");
-                } catch (e) {
-                  toast.error(e instanceof Error ? e.message : "Error");
-                }
-              }}
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Eliminar
-            </DropdownMenuItem>
-          </>
-        )}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
 }
 
 export function PlanBuilder({ weekStart, availableRecipes }: PlanBuilderProps) {

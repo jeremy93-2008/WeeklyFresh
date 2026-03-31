@@ -19,7 +19,7 @@ interface InstructionInput {
   image: string | null;
 }
 
-interface CreateRecipeInput {
+interface RecipeInput {
   title: string;
   image: string | null;
   isPublic: boolean;
@@ -28,13 +28,60 @@ interface CreateRecipeInput {
   utensils: string[];
 }
 
-export async function createRecipe(data: CreateRecipeInput) {
-  const { userId } = await auth();
-  if (!userId) throw new Error("No autenticado");
+// ─── Shared helpers ───
 
+function validateRecipeInput(data: RecipeInput) {
   if (!data.title.trim()) throw new Error("El título es requerido");
   if (data.ingredients.length === 0)
     throw new Error("Agrega al menos un ingrediente");
+}
+
+async function insertRecipeDetails(
+  tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
+  recipeId: number,
+  data: RecipeInput
+) {
+  if (data.ingredients.length > 0) {
+    await tx.insert(ingredients).values(
+      data.ingredients.map((ing) => ({
+        recipeId,
+        quantity: ing.quantity || null,
+        unit: ing.unit || null,
+        name: ing.name.trim(),
+        shipped: ing.shipped,
+      }))
+    );
+  }
+
+  if (data.instructions.length > 0) {
+    await tx.insert(instructions).values(
+      data.instructions.map((inst, idx) => ({
+        recipeId,
+        stepOrder: idx,
+        text: inst.text.trim(),
+        image: inst.image,
+      }))
+    );
+  }
+
+  const validUtensils = data.utensils.filter((u) => u.trim());
+  if (validUtensils.length > 0) {
+    await tx.insert(utensils).values(
+      validUtensils.map((u) => ({
+        recipeId,
+        text: u.trim(),
+      }))
+    );
+  }
+}
+
+// ─── Actions ───
+
+export async function createRecipe(data: RecipeInput) {
+  const { userId } = await auth();
+  if (!userId) throw new Error("No autenticado");
+
+  validateRecipeInput(data);
 
   let recipeId: number;
 
@@ -52,53 +99,18 @@ export async function createRecipe(data: CreateRecipeInput) {
       .returning({ id: recipes.id });
 
     recipeId = recipe.id;
-
-    if (data.ingredients.length > 0) {
-      await tx.insert(ingredients).values(
-        data.ingredients.map((ing) => ({
-          recipeId: recipe.id,
-          quantity: ing.quantity || null,
-          unit: ing.unit || null,
-          name: ing.name.trim(),
-          shipped: ing.shipped,
-        }))
-      );
-    }
-
-    if (data.instructions.length > 0) {
-      await tx.insert(instructions).values(
-        data.instructions.map((inst, idx) => ({
-          recipeId: recipe.id,
-          stepOrder: idx,
-          text: inst.text.trim(),
-          image: inst.image,
-        }))
-      );
-    }
-
-    if (data.utensils.length > 0) {
-      await tx.insert(utensils).values(
-        data.utensils
-          .filter((u) => u.trim())
-          .map((u) => ({
-            recipeId: recipe.id,
-            text: u.trim(),
-          }))
-      );
-    }
+    await insertRecipeDetails(tx, recipe.id, data);
   });
 
   revalidatePath("/recetas");
   redirect(`/recetas/${recipeId!}`);
 }
 
-export async function updateRecipe(recipeId: number, data: CreateRecipeInput) {
+export async function updateRecipe(recipeId: number, data: RecipeInput) {
   const { userId } = await auth();
   if (!userId) throw new Error("No autenticado");
 
-  if (!data.title.trim()) throw new Error("El título es requerido");
-  if (data.ingredients.length === 0)
-    throw new Error("Agrega al menos un ingrediente");
+  validateRecipeInput(data);
 
   const recipe = await db.query.recipes.findFirst({
     where: and(eq(recipes.id, recipeId), eq(recipes.userId, userId)),
@@ -117,44 +129,12 @@ export async function updateRecipe(recipeId: number, data: CreateRecipeInput) {
       })
       .where(eq(recipes.id, recipeId));
 
-    // Delete old and re-insert
+    // Clear old details and re-insert
     await tx.delete(ingredients).where(eq(ingredients.recipeId, recipeId));
     await tx.delete(instructions).where(eq(instructions.recipeId, recipeId));
     await tx.delete(utensils).where(eq(utensils.recipeId, recipeId));
 
-    if (data.ingredients.length > 0) {
-      await tx.insert(ingredients).values(
-        data.ingredients.map((ing) => ({
-          recipeId,
-          quantity: ing.quantity || null,
-          unit: ing.unit || null,
-          name: ing.name.trim(),
-          shipped: ing.shipped,
-        }))
-      );
-    }
-
-    if (data.instructions.length > 0) {
-      await tx.insert(instructions).values(
-        data.instructions.map((inst, idx) => ({
-          recipeId,
-          stepOrder: idx,
-          text: inst.text.trim(),
-          image: inst.image,
-        }))
-      );
-    }
-
-    if (data.utensils.length > 0) {
-      await tx.insert(utensils).values(
-        data.utensils
-          .filter((u) => u.trim())
-          .map((u) => ({
-            recipeId,
-            text: u.trim(),
-          }))
-      );
-    }
+    await insertRecipeDetails(tx, recipeId, data);
   });
 
   revalidatePath("/recetas");
@@ -167,10 +147,7 @@ export async function deleteRecipe(recipeId: number) {
   if (!userId) throw new Error("No autenticado");
 
   const recipe = await db.query.recipes.findFirst({
-    where: and(
-      eq(recipes.id, recipeId),
-      eq(recipes.userId, userId)
-    ),
+    where: and(eq(recipes.id, recipeId), eq(recipes.userId, userId)),
   });
 
   if (!recipe) throw new Error("Receta no encontrada");
