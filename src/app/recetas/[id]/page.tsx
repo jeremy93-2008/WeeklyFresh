@@ -2,7 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Pencil } from "lucide-react";
 import { getRecipeById } from "@/queries/recipes";
 import { getImageUrl } from "@/lib/image-utils";
 import { HelloFreshBadge } from "@/components/recipes/hellofresh-badge";
@@ -61,6 +61,15 @@ export default async function RecipeDetailPage({ params }: Props) {
                 >
                   <ExternalLink className="h-3 w-3" />
                   Ver en HelloFresh
+                </Link>
+              )}
+              {!recipe.isHellofresh && recipe.userId === userId && (
+                <Link
+                  href={`/recetas/${recipe.id}/editar`}
+                  className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary hover:bg-primary/20 transition-colors"
+                >
+                  <Pencil className="h-3 w-3" />
+                  Editar
                 </Link>
               )}
             </div>

@@ -14,7 +14,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { createRecipe } from "@/actions/recipes";
+import { createRecipe, updateRecipe } from "@/actions/recipes";
 import { toast } from "sonner";
 
 interface IngredientRow {
@@ -29,17 +29,38 @@ interface InstructionRow {
   image: string | null;
 }
 
-export function RecipeForm() {
-  const [title, setTitle] = useState("");
-  const [isPublic, setIsPublic] = useState(true);
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [ingredientRows, setIngredientRows] = useState<IngredientRow[]>([
-    { quantity: "", unit: "", name: "", shipped: true },
-  ]);
-  const [instructionRows, setInstructionRows] = useState<InstructionRow[]>([
-    { text: "", image: null },
-  ]);
-  const [utensilRows, setUtensilRows] = useState<string[]>([""]);
+export interface RecipeFormData {
+  id?: number;
+  title: string;
+  isPublic: boolean;
+  image: string | null;
+  ingredients: IngredientRow[];
+  instructions: InstructionRow[];
+  utensils: string[];
+}
+
+interface RecipeFormProps {
+  initialData?: RecipeFormData;
+}
+
+export function RecipeForm({ initialData }: RecipeFormProps) {
+  const isEditing = !!initialData?.id;
+  const [title, setTitle] = useState(initialData?.title ?? "");
+  const [isPublic, setIsPublic] = useState(initialData?.isPublic ?? true);
+  const [imageUrl, setImageUrl] = useState<string | null>(initialData?.image ?? null);
+  const [ingredientRows, setIngredientRows] = useState<IngredientRow[]>(
+    initialData?.ingredients?.length
+      ? initialData.ingredients
+      : [{ quantity: "", unit: "", name: "", shipped: true }]
+  );
+  const [instructionRows, setInstructionRows] = useState<InstructionRow[]>(
+    initialData?.instructions?.length
+      ? initialData.instructions
+      : [{ text: "", image: null }]
+  );
+  const [utensilRows, setUtensilRows] = useState<string[]>(
+    initialData?.utensils?.length ? initialData.utensils : [""]
+  );
   const [step, setStep] = useState(0);
   const [isPending, startTransition] = useTransition();
   const [isUploading, setIsUploading] = useState(false);
@@ -137,17 +158,23 @@ export function RecipeForm() {
 
     startTransition(async () => {
       try {
-        await createRecipe({
+        const payload = {
           title,
           image: imageUrl,
           isPublic,
           ingredients: validIngredients,
           instructions: validInstructions,
           utensils: validUtensils,
-        });
-        toast.success("Receta creada");
+        };
+        if (isEditing) {
+          await updateRecipe(initialData!.id!, payload);
+          toast.success("Receta actualizada");
+        } else {
+          await createRecipe(payload);
+          toast.success("Receta creada");
+        }
       } catch (e) {
-        toast.error(e instanceof Error ? e.message : "Error al crear receta");
+        toast.error(e instanceof Error ? e.message : "Error al guardar receta");
       }
     });
   }
@@ -407,7 +434,7 @@ export function RecipeForm() {
           disabled={isPending}
           className="w-full"
         >
-          {isPending ? "Creando..." : "Crear Receta"}
+          {isPending ? "Guardando..." : isEditing ? "Guardar Cambios" : "Crear Receta"}
         </Button>
       </div>
     );
@@ -490,7 +517,7 @@ export function RecipeForm() {
           className="w-full"
           size="lg"
         >
-          {isPending ? "Creando..." : "Crear Receta"}
+          {isPending ? "Guardando..." : isEditing ? "Guardar Cambios" : "Crear Receta"}
         </Button>
       </div>
     </>
