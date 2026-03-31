@@ -5,7 +5,7 @@ import { esES } from "@clerk/localizations";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { NavWrapper } from "@/components/layout/nav-wrapper";
+import { AppShell } from "@/components/layout/app-shell";
 import { NavigationProgress } from "@/components/layout/navigation-progress";
 import "./globals.css";
 
@@ -41,7 +41,7 @@ export default function RootLayout({
           >
             <TooltipProvider>
               <NavigationProgress />
-              <NavWrapper>{children}</NavWrapper>
+              <AppShell>{children}</AppShell>
               <Toaster />
             </TooltipProvider>
           </ThemeProvider>
