@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { RotateCcw } from "lucide-react";
+import { TruncatedText } from "@/components/ui/truncated-text";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -84,7 +85,7 @@ export function PlanConfirmed({ planId, recipes }: PlanConfirmedProps) {
                         sizes="40px"
                       />
                     </div>
-                    <span className="text-xs line-clamp-2">{r.title}</span>
+                    <TruncatedText text={r.title} className="text-xs" />
                   </Link>
                 ))
               )}
@@ -115,7 +116,7 @@ export function PlanConfirmed({ planId, recipes }: PlanConfirmedProps) {
                     sizes="40px"
                   />
                 </div>
-                <span className="text-xs line-clamp-2">{r.title}</span>
+                <TruncatedText text={r.title} className="text-xs" />
               </Link>
             ))}
           </div>

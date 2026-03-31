@@ -46,7 +46,7 @@ export function FavoriteButton({
       onClick={handleClick}
       disabled={isPending}
       className={cn(
-        "rounded-full",
+        "rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-sm",
         size === "sm" ? "h-8 w-8" : "h-10 w-10"
       )}
       aria-label={optimisticFavorite ? "Quitar de favoritos" : "Agregar a favoritos"}
@@ -56,7 +56,7 @@ export function FavoriteButton({
           size === "sm" ? "h-4 w-4" : "h-5 w-5",
           optimisticFavorite
             ? "fill-red-500 text-red-500"
-            : "text-muted-foreground"
+            : "text-white"
         )}
       />
     </Button>

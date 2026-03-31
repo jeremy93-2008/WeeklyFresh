@@ -4,7 +4,7 @@ import { eq, ilike, and, or, exists, sql, count } from "drizzle-orm";
 
 interface GetRecipesParams {
   search?: string;
-  ingredient?: string;
+  ingredients?: string[];
   utensil?: string;
   page?: number;
   limit?: number;
@@ -13,7 +13,7 @@ interface GetRecipesParams {
 
 export async function getRecipes({
   search,
-  ingredient,
+  ingredients: ingredientFilters,
   utensil,
   page = 1,
   limit = 20,
@@ -34,20 +34,22 @@ export async function getRecipes({
     conditions.push(ilike(recipes.title, `%${search}%`));
   }
 
-  if (ingredient) {
-    conditions.push(
-      exists(
-        db
-          .select({ one: sql`1` })
-          .from(ingredients)
-          .where(
-            and(
-              eq(ingredients.recipeId, recipes.id),
-              ilike(ingredients.name, `%${ingredient}%`)
+  if (ingredientFilters?.length) {
+    for (const ing of ingredientFilters) {
+      conditions.push(
+        exists(
+          db
+            .select({ one: sql`1` })
+            .from(ingredients)
+            .where(
+              and(
+                eq(ingredients.recipeId, recipes.id),
+                ilike(ingredients.name, `%${ing}%`)
+              )
             )
-          )
-      )
-    );
+        )
+      );
+    }
   }
 
   if (utensil) {

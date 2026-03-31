@@ -2,8 +2,16 @@
 
 import { useState, useTransition } from "react";
 import Image from "next/image";
-import { X, Plus } from "lucide-react";
+import { X, Plus, LayoutGrid, List, ChevronLeft, ChevronRight, MoreVertical, Eye, Copy, Pencil, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Select,
   SelectContent,
@@ -15,6 +23,9 @@ import { Input } from "@/components/ui/input";
 import { DAY_NAMES } from "@/lib/constants";
 import { getImageUrl } from "@/lib/image-utils";
 import { confirmPlan } from "@/actions/plans";
+import { deleteRecipe } from "@/actions/recipes";
+import { TruncatedText } from "@/components/ui/truncated-text";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 interface SelectedRecipe {
@@ -36,10 +47,70 @@ interface PlanBuilderProps {
   availableRecipes: AvailableRecipe[];
 }
 
+function RecipeActions({
+  recipe,
+  onAdd,
+}: {
+  recipe: AvailableRecipe;
+  onAdd: () => void;
+}) {
+  const router = useRouter();
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-muted"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <MoreVertical className="h-4 w-4 text-muted-foreground" />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <a href={`/recetas/${recipe.id}`}>
+          <DropdownMenuItem>
+            <Eye className="mr-2 h-4 w-4" />
+            Ver receta
+          </DropdownMenuItem>
+        </a>
+        <DropdownMenuItem onClick={onAdd}>
+          <Plus className="mr-2 h-4 w-4" />
+          Agregar al plan
+        </DropdownMenuItem>
+        {!recipe.isHellofresh && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => router.push(`/recetas/${recipe.id}/editar`)}>
+              <Pencil className="mr-2 h-4 w-4" />
+              Editar
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="text-destructive"
+              onClick={async () => {
+                if (!confirm("¿Eliminar esta receta?")) return;
+                try {
+                  await deleteRecipe(recipe.id);
+                  toast.success("Receta eliminada");
+                } catch (e) {
+                  toast.error(e instanceof Error ? e.message : "Error");
+                }
+              }}
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Eliminar
+            </DropdownMenuItem>
+          </>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
 export function PlanBuilder({ weekStart, availableRecipes }: PlanBuilderProps) {
   const [selected, setSelected] = useState<SelectedRecipe[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [view, setView] = useState<"grid" | "list">("grid");
+  const [page, setPage] = useState(1);
   const [isPending, startTransition] = useTransition();
+  const perPage = 16;
 
   const selectedIds = new Set(selected.map((r) => r.recipeId));
 
@@ -48,6 +119,9 @@ export function PlanBuilder({ weekStart, availableRecipes }: PlanBuilderProps) {
       !selectedIds.has(r.id) &&
       r.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const totalPages = Math.ceil(filtered.length / perPage);
+  const paginated = filtered.slice((page - 1) * perPage, page * perPage);
 
   function addRecipe(recipe: AvailableRecipe) {
     setSelected((prev) => [
@@ -111,22 +185,22 @@ export function PlanBuilder({ weekStart, availableRecipes }: PlanBuilderProps) {
                     sizes="48px"
                   />
                 </div>
-                <span className="flex-1 text-sm line-clamp-1">
-                  {recipe.title}
-                </span>
+                <TruncatedText text={recipe.title} maxLines={1} className="flex-1 text-sm" />
                 <Select
-                  value={recipe.dayOfWeek?.toString() ?? "none"}
-                  onValueChange={(v) =>
-                    setDay(recipe.recipeId, v === "none" ? null : parseInt(v!))
-                  }
+                  value={recipe.dayOfWeek !== null ? DAY_NAMES[recipe.dayOfWeek] : "Sin asignar"}
+                  onValueChange={(v) => {
+                    if (!v) return;
+                    const idx = DAY_NAMES.indexOf(v as typeof DAY_NAMES[number]);
+                    setDay(recipe.recipeId, idx >= 0 ? idx : null);
+                  }}
                 >
                   <SelectTrigger className="w-[130px]">
-                    <SelectValue />
+                    <SelectValue placeholder="Sin asignar" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">Sin asignar</SelectItem>
-                    {DAY_NAMES.map((name, idx) => (
-                      <SelectItem key={idx} value={idx.toString()}>
+                    <SelectItem value="Sin asignar">Sin asignar</SelectItem>
+                    {DAY_NAMES.map((name) => (
+                      <SelectItem key={name} value={name}>
                         {name}
                       </SelectItem>
                     ))}
@@ -148,39 +222,110 @@ export function PlanBuilder({ weekStart, availableRecipes }: PlanBuilderProps) {
 
       {/* Available recipes */}
       <div className="space-y-3">
-        <h2 className="text-sm font-medium">Agregar recetas</h2>
+        <div className="flex items-center gap-2">
+          <h2 className="text-sm font-medium flex-1">Agregar recetas</h2>
+          <div className="flex rounded-md border">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setView("grid")}
+              className={cn("rounded-r-none h-8 w-8", view === "grid" && "bg-muted")}
+            >
+              <LayoutGrid className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setView("list")}
+              className={cn("rounded-l-none h-8 w-8", view === "list" && "bg-muted")}
+            >
+              <List className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        </div>
         <Input
           placeholder="Buscar recetas..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
         />
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-          {filtered.slice(0, 12).map((recipe) => (
-            <button
-              key={recipe.id}
-              onClick={() => addRecipe(recipe)}
-              className="flex items-center gap-2 rounded-lg border bg-card p-2 text-left transition-colors hover:bg-muted/50"
-            >
-              <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded">
-                <Image
-                  src={getImageUrl(recipe.image)}
-                  alt={recipe.title}
-                  fill
-                  className="object-cover"
-                  sizes="40px"
-                />
+
+        {view === "grid" ? (
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            {paginated.map((recipe) => (
+              <div
+                key={recipe.id}
+                className="group cursor-pointer overflow-hidden rounded-lg border bg-card text-left transition-shadow hover:shadow-md"
+              >
+                <div
+                  className="relative aspect-[4/3] overflow-hidden"
+                  onClick={() => addRecipe(recipe)}
+                >
+                  <Image
+                    src={getImageUrl(recipe.image)}
+                    alt={recipe.title}
+                    fill
+                    className="object-cover transition-transform group-hover:scale-105"
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center bg-primary/0 transition-colors group-hover:bg-primary/60">
+                    <Plus className="h-8 w-8 text-white opacity-0 transition-opacity group-hover:opacity-100" />
+                  </div>
+                </div>
+                <div className="flex items-center gap-1 p-2">
+                  <TruncatedText text={recipe.title} className="flex-1 text-sm font-medium" />
+                  <RecipeActions recipe={recipe} onAdd={() => addRecipe(recipe)} />
+                </div>
               </div>
-              <span className="flex-1 text-xs line-clamp-2">
-                {recipe.title}
-              </span>
-              <Plus className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
-            </button>
-          ))}
-        </div>
-        {filtered.length > 12 && (
-          <p className="text-xs text-muted-foreground text-center">
-            {filtered.length - 12} recetas más. Usa la búsqueda para filtrar.
-          </p>
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-1.5">
+            {paginated.map((recipe) => (
+              <div
+                key={recipe.id}
+                onClick={() => addRecipe(recipe)}
+                className="flex w-full cursor-pointer items-center gap-3 rounded-lg border bg-card p-2 text-left transition-colors hover:bg-muted/50"
+              >
+                <div className="relative h-14 w-14 flex-shrink-0 overflow-hidden rounded">
+                  <Image
+                    src={getImageUrl(recipe.image)}
+                    alt={recipe.title}
+                    fill
+                    className="object-cover"
+                    sizes="56px"
+                  />
+                </div>
+                <TruncatedText text={recipe.title} maxLines={1} className="flex-1 text-sm" />
+                <RecipeActions recipe={recipe} onAdd={() => addRecipe(recipe)} />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-2 py-2">
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page <= 1}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <span className="text-sm text-muted-foreground">
+              {page} / {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page >= totalPages}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
         )}
       </div>
 

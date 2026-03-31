@@ -13,10 +13,10 @@ export function DesktopSidebar() {
 
   return (
     <aside className="fixed left-0 inset-y-0 z-50 hidden w-60 flex-col border-r bg-card md:flex">
-      <div className="flex h-14 items-center gap-2 border-b px-4">
+      <Link href="/" className="flex h-14 items-center gap-2 border-b px-4 hover:opacity-80">
         <UtensilsCrossed className="h-6 w-6 text-primary" />
         <span className="text-lg font-semibold">WeeklyFresh</span>
-      </div>
+      </Link>
 
       <nav className="flex-1 space-y-1 p-3">
         {NAV_ITEMS.map((item) => {

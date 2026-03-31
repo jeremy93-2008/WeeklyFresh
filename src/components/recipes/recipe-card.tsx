@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { getImageUrl } from "@/lib/image-utils";
+import { TruncatedText } from "@/components/ui/truncated-text";
 import { HelloFreshBadge } from "./hellofresh-badge";
 import { FavoriteButton } from "./favorite-button";
 
@@ -18,11 +19,11 @@ interface RecipeCardProps {
 export function RecipeCard({ recipe, variant = "grid" }: RecipeCardProps) {
   if (variant === "list") {
     return (
-      <Link
-        href={`/recetas/${recipe.id}`}
-        className="flex items-center gap-3 rounded-lg border bg-card p-3 transition-colors hover:bg-muted/50"
-      >
-        <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md">
+      <div className="flex items-center gap-3 rounded-lg border bg-card p-3 transition-colors hover:bg-muted/50">
+        <Link
+          href={`/recetas/${recipe.id}`}
+          className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md"
+        >
           <Image
             src={getImageUrl(recipe.image)}
             alt={recipe.title}
@@ -30,11 +31,11 @@ export function RecipeCard({ recipe, variant = "grid" }: RecipeCardProps) {
             className="object-cover"
             sizes="80px"
           />
-        </div>
+        </Link>
         <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-medium leading-tight line-clamp-2">
-            {recipe.title}
-          </h3>
+          <Link href={`/recetas/${recipe.id}`}>
+            <TruncatedText text={recipe.title} className="text-sm font-medium leading-tight" />
+          </Link>
           {recipe.isHellofresh && (
             <div className="mt-1">
               <HelloFreshBadge />
@@ -46,16 +47,16 @@ export function RecipeCard({ recipe, variant = "grid" }: RecipeCardProps) {
           isFavorite={recipe.isFavorite}
           size="sm"
         />
-      </Link>
+      </div>
     );
   }
 
   return (
-    <Link
-      href={`/recetas/${recipe.id}`}
-      className="group overflow-hidden rounded-lg border bg-card transition-shadow hover:shadow-md"
-    >
-      <div className="relative aspect-[4/3] overflow-hidden">
+    <div className="group overflow-hidden rounded-lg border bg-card transition-shadow hover:shadow-md">
+      <Link
+        href={`/recetas/${recipe.id}`}
+        className="relative block aspect-[4/3] overflow-hidden"
+      >
         <Image
           src={getImageUrl(recipe.image)}
           alt={recipe.title}
@@ -75,12 +76,12 @@ export function RecipeCard({ recipe, variant = "grid" }: RecipeCardProps) {
             size="sm"
           />
         </div>
-      </div>
+      </Link>
       <div className="p-3">
-        <h3 className="text-sm font-medium leading-tight line-clamp-2">
-          {recipe.title}
-        </h3>
+        <Link href={`/recetas/${recipe.id}`}>
+          <TruncatedText text={recipe.title} className="text-sm font-medium leading-tight" />
+        </Link>
       </div>
-    </Link>
+    </div>
   );
 }

@@ -1,8 +1,8 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
-import { Search, LayoutGrid, List } from "lucide-react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useRef, useState } from "react";
+import { Search, LayoutGrid, List, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 interface RecipeSearchProps {
@@ -20,47 +21,66 @@ interface RecipeSearchProps {
 
 export function RecipeSearch({ utensilOptions }: RecipeSearchProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const [search, setSearch] = useState(searchParams.get("q") ?? "");
-  const [ingredientFilter, setIngredientFilter] = useState(
-    searchParams.get("ingrediente") ?? ""
-  );
+  const [ingredientInput, setIngredientInput] = useState("");
+  const [ingredientTags, setIngredientTags] = useState<string[]>(() => {
+    const param = searchParams.get("ingrediente");
+    return param ? param.split(",").filter(Boolean) : [];
+  });
 
   const currentView = searchParams.get("vista") ?? "grid";
   const currentUtensil = searchParams.get("utensilio") ?? "";
 
-  const updateParams = useCallback(
-    (updates: Record<string, string>) => {
-      const params = new URLSearchParams(searchParams.toString());
-      for (const [key, value] of Object.entries(updates)) {
-        if (value) {
-          params.set(key, value);
-        } else {
-          params.delete(key);
-        }
+  const searchTimer = useRef<ReturnType<typeof setTimeout>>();
+
+  function navigate(updates: Record<string, string>, resetPage = true) {
+    const params = new URLSearchParams(searchParams.toString());
+    for (const [key, value] of Object.entries(updates)) {
+      if (value) {
+        params.set(key, value);
+      } else {
+        params.delete(key);
       }
-      params.delete("pagina");
-      router.replace(`/recetas?${params.toString()}`);
-    },
-    [router, searchParams]
-  );
+    }
+    if (resetPage) params.delete("pagina");
+    router.replace(`${pathname}?${params.toString()}`);
+  }
 
-  // Debounced search
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      updateParams({ q: search });
+  function handleSearchChange(value: string) {
+    setSearch(value);
+    clearTimeout(searchTimer.current);
+    searchTimer.current = setTimeout(() => {
+      navigate({ q: value });
     }, 300);
-    return () => clearTimeout(timer);
-  }, [search, updateParams]);
+  }
 
-  // Debounced ingredient filter
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      updateParams({ ingrediente: ingredientFilter });
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [ingredientFilter, updateParams]);
+  function addIngredientTag(value: string) {
+    const tag = value.trim().toLowerCase();
+    if (!tag || ingredientTags.includes(tag)) return;
+    const newTags = [...ingredientTags, tag];
+    setIngredientTags(newTags);
+    setIngredientInput("");
+    navigate({ ingrediente: newTags.join(",") });
+  }
+
+  function removeIngredientTag(tag: string) {
+    const newTags = ingredientTags.filter((t) => t !== tag);
+    setIngredientTags(newTags);
+    navigate({ ingrediente: newTags.join(",") });
+  }
+
+  function handleIngredientKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addIngredientTag(ingredientInput);
+    }
+    if (e.key === "Backspace" && !ingredientInput && ingredientTags.length > 0) {
+      removeIngredientTag(ingredientTags[ingredientTags.length - 1]);
+    }
+  }
 
   return (
     <div className="space-y-3">
@@ -70,7 +90,7 @@ export function RecipeSearch({ utensilOptions }: RecipeSearchProps) {
           <Input
             placeholder="Buscar recetas..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
             className="pl-9"
           />
         </div>
@@ -78,7 +98,7 @@ export function RecipeSearch({ utensilOptions }: RecipeSearchProps) {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => updateParams({ vista: "grid" })}
+            onClick={() => navigate({ vista: "grid" }, false)}
             className={cn(
               "rounded-r-none",
               currentView === "grid" && "bg-muted"
@@ -89,7 +109,7 @@ export function RecipeSearch({ utensilOptions }: RecipeSearchProps) {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => updateParams({ vista: "list" })}
+            onClick={() => navigate({ vista: "list" }, false)}
             className={cn(
               "rounded-l-none",
               currentView === "list" && "bg-muted"
@@ -101,16 +121,38 @@ export function RecipeSearch({ utensilOptions }: RecipeSearchProps) {
       </div>
 
       <div className="flex gap-2">
-        <Input
-          placeholder="Filtrar por ingrediente..."
-          value={ingredientFilter}
-          onChange={(e) => setIngredientFilter(e.target.value)}
-          className="flex-1"
-        />
+        <div className="flex flex-1 flex-wrap items-center gap-1.5 rounded-md border bg-background px-3 py-1.5 focus-within:ring-2 focus-within:ring-ring">
+          {ingredientTags.map((tag) => (
+            <Badge
+              key={tag}
+              variant="secondary"
+              className="gap-1 pr-1"
+            >
+              {tag}
+              <button
+                onClick={() => removeIngredientTag(tag)}
+                className="ml-0.5 rounded-full hover:bg-muted-foreground/20 p-0.5"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </Badge>
+          ))}
+          <input
+            placeholder={
+              ingredientTags.length === 0
+                ? "Filtrar por ingredientes..."
+                : "Otro ingrediente..."
+            }
+            value={ingredientInput}
+            onChange={(e) => setIngredientInput(e.target.value)}
+            onKeyDown={handleIngredientKeyDown}
+            className="flex-1 min-w-[120px] bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+          />
+        </div>
         <Select
           value={currentUtensil}
           onValueChange={(value) =>
-            updateParams({ utensilio: value === "all" ? "" : value ?? "" })
+            navigate({ utensilio: value === "all" ? "" : value ?? "" })
           }
         >
           <SelectTrigger className="w-[180px]">
