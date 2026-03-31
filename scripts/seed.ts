@@ -8,10 +8,7 @@ import { extractFilename } from "../src/lib/image-utils";
 import fs from "fs";
 import path from "path";
 
-const DATA_PATH = path.resolve(
-  __dirname,
-  "../../scraping/hello-fresh/scraping/hello-fresh-recipes-details.json"
-);
+const DATA_PATH = path.resolve(__dirname, "data.json");
 
 interface RawRecipe {
   id: string;
