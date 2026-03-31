@@ -1,5 +1,6 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { startOfWeek, format } from "date-fns";
+import { resolveInvites } from "@/lib/resolve-invites";
 import { getPlan } from "@/queries/plans";
 import { getRecipes } from "@/queries/recipes";
 import { WeekSelector } from "@/components/plan/week-selector";
@@ -7,6 +8,7 @@ import { PlanBuilder } from "@/components/plan/plan-builder";
 import { PlanConfirmed } from "@/components/plan/plan-confirmed";
 import { PlanMembers } from "@/components/plan/plan-members";
 import { Badge } from "@/components/ui/badge";
+import { InviteToast } from "@/components/layout/invite-toast";
 
 interface Props {
   searchParams: Promise<{ week?: string }>;
@@ -16,6 +18,11 @@ export default async function PlanPage({ searchParams }: Props) {
   const params = await searchParams;
   const { userId } = await auth();
   if (!userId) return null;
+
+  // Resolve any pending invites for this user
+  const user = await currentUser();
+  const email = user?.emailAddresses?.[0]?.emailAddress;
+  const resolvedCount = email ? await resolveInvites(userId, email) : 0;
 
   const currentMonday = format(
     startOfWeek(new Date(), { weekStartsOn: 1 }),
@@ -27,6 +34,7 @@ export default async function PlanPage({ searchParams }: Props) {
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 p-4">
+      <InviteToast count={resolvedCount} />
       <div className="flex items-center gap-3">
         <h1 className="text-2xl font-bold flex-1">Plan Semanal</h1>
         {plan && plan.role !== "owner" && (

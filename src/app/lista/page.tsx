@@ -1,5 +1,6 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { startOfWeek, format } from "date-fns";
+import { resolveInvites } from "@/lib/resolve-invites";
 import Image from "next/image";
 import Link from "next/link";
 import { getShoppingList } from "@/queries/plans";
@@ -9,6 +10,7 @@ import { IngredientCheck } from "@/components/shopping/ingredient-check";
 import { CustomItemSection } from "@/components/shopping/custom-item-section";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { InviteToast } from "@/components/layout/invite-toast";
 
 interface Props {
   searchParams: Promise<{ week?: string }>;
@@ -18,6 +20,10 @@ export default async function ListaPage({ searchParams }: Props) {
   const params = await searchParams;
   const { userId } = await auth();
   if (!userId) return null;
+
+  const user = await currentUser();
+  const email = user?.emailAddresses?.[0]?.emailAddress;
+  const resolvedCount = email ? await resolveInvites(userId, email) : 0;
 
   const currentMonday = format(
     startOfWeek(new Date(), { weekStartsOn: 1 }),
@@ -29,6 +35,7 @@ export default async function ListaPage({ searchParams }: Props) {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6 p-4">
+      <InviteToast count={resolvedCount} />
       <h1 className="text-2xl font-bold">Lista de Compra</h1>
 
       <WeekSelector basePath="/lista" selectedWeek={weekStart} />
