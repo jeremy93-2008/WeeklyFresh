@@ -12,12 +12,8 @@ interface ImageUploadSectionProps {
   onRemove: () => void;
 }
 
-export function ImageUploadSection({
-  imageUrl,
-  isUploading,
-  onUpload,
-  onRemove,
-}: ImageUploadSectionProps) {
+export function ImageUploadSection(props: ImageUploadSectionProps) {
+  const { imageUrl, isUploading, onUpload, onRemove } = props;
   return (
     <div className="space-y-3">
       <Label>Imagen de la receta</Label>

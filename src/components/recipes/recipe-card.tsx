@@ -16,7 +16,8 @@ interface RecipeCardProps {
   variant?: "grid" | "list";
 }
 
-export function RecipeCard({ recipe, variant = "grid" }: RecipeCardProps) {
+export function RecipeCard(props: RecipeCardProps) {
+  const { recipe, variant = "grid" } = props;
   if (variant === "list") {
     return (
       <div className="flex items-center gap-3 rounded-lg border bg-card p-3 transition-colors hover:bg-muted/50">

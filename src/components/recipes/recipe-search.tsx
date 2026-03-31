@@ -20,7 +20,8 @@ interface RecipeSearchProps {
   utensilOptions: string[];
 }
 
-export function RecipeSearch({ utensilOptions }: RecipeSearchProps) {
+export function RecipeSearch(props: RecipeSearchProps) {
+  const { utensilOptions } = props;
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();

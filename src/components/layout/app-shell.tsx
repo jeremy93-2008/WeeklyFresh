@@ -2,28 +2,19 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { UtensilsCrossed } from "lucide-react";
 import { NAV_ITEMS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
 import { AuthButton } from "./auth-button";
 
-function Logo() {
-  return (
-    <Link href="/recetas" className="flex items-center gap-2 hover:opacity-80">
-      <UtensilsCrossed className="h-5 w-5 text-primary" />
-      <span className="font-semibold">WeeklyFresh</span>
-    </Link>
-  );
-}
-
-function NavItems({
-  pathname,
-  layout,
-}: {
+interface NavItemsProps {
   pathname: string;
   layout: "sidebar" | "bar";
-}) {
+}
+
+function NavItems(props: NavItemsProps) {
+  const { pathname, layout } = props;
   return (
     <>
       {NAV_ITEMS.map((item) => {
@@ -59,7 +50,12 @@ function NavItems({
   );
 }
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+interface AppShellProps {
+  children: React.ReactNode;
+}
+
+export function AppShell(props: AppShellProps) {
+  const { children } = props;
   const pathname = usePathname();
 
   return (

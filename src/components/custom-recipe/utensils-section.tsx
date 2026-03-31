@@ -11,7 +11,8 @@ interface UtensilsSectionProps {
   onRemove: (idx: number) => void;
 }
 
-export function UtensilsSection({ rows, onUpdate, onAdd, onRemove }: UtensilsSectionProps) {
+export function UtensilsSection(props: UtensilsSectionProps) {
+  const { rows, onUpdate, onAdd, onRemove } = props;
   return (
     <div className="space-y-3">
       {rows.map((row, idx) => (

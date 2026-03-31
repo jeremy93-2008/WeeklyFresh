@@ -13,7 +13,8 @@ interface IngredientsSectionProps {
   onRemove: (idx: number) => void;
 }
 
-export function IngredientsSection({ rows, onUpdate, onAdd, onRemove }: IngredientsSectionProps) {
+export function IngredientsSection(props: IngredientsSectionProps) {
+  const { rows, onUpdate, onAdd, onRemove } = props;
   return (
     <div className="space-y-3">
       {rows.map((row, idx) => (

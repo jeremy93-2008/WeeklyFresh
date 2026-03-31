@@ -32,7 +32,8 @@ const STEPS = [
   "Revisar",
 ];
 
-export function RecipeForm({ initialData }: RecipeFormProps) {
+export function RecipeForm(props: RecipeFormProps) {
+  const { initialData } = props;
   const form = useRecipeForm(initialData);
   const [step, setStep] = useState(0);
 

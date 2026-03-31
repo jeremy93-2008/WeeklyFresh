@@ -14,14 +14,8 @@ interface IngredientCheckProps {
   name: string;
 }
 
-export function IngredientCheck({
-  planId,
-  ingredientId,
-  checked,
-  quantity,
-  unit,
-  name,
-}: IngredientCheckProps) {
+export function IngredientCheck(props: IngredientCheckProps) {
+  const { planId, ingredientId, checked, quantity, unit, name } = props;
   const [isPending, startTransition] = useTransition();
   const [optimisticChecked, setOptimisticChecked] = useOptimistic(checked);
 

@@ -39,7 +39,8 @@ interface PlanBuilderProps {
   availableRecipes: AvailableRecipe[];
 }
 
-export function PlanBuilder({ weekStart, availableRecipes }: PlanBuilderProps) {
+export function PlanBuilder(props: PlanBuilderProps) {
+  const { weekStart, availableRecipes } = props;
   const [selected, setSelected] = useState<SelectedRecipe[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [view, setView] = useState<"grid" | "list">("grid");

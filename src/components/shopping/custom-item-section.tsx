@@ -24,7 +24,8 @@ interface CustomItemSectionProps {
   items: CustomItem[];
 }
 
-export function CustomItemSection({ planId, items }: CustomItemSectionProps) {
+export function CustomItemSection(props: CustomItemSectionProps) {
+  const { planId, items } = props;
   const [newItemName, setNewItemName] = useState("");
   const [isPending, startTransition] = useTransition();
 
@@ -73,7 +74,12 @@ export function CustomItemSection({ planId, items }: CustomItemSectionProps) {
   );
 }
 
-function CustomItemRow({ item }: { item: CustomItem }) {
+interface CustomItemRowProps {
+  item: CustomItem;
+}
+
+function CustomItemRow(props: CustomItemRowProps) {
+  const { item } = props;
   const [isPending, startTransition] = useTransition();
   const [optimisticChecked, setOptimisticChecked] = useOptimistic(item.checked);
 

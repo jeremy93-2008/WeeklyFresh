@@ -13,11 +13,8 @@ interface TruncatedTextProps {
   maxLines?: 1 | 2;
 }
 
-export function TruncatedText({
-  text,
-  className,
-  maxLines = 2,
-}: TruncatedTextProps) {
+export function TruncatedText(props: TruncatedTextProps) {
+  const { text, className, maxLines = 2 } = props;
   return (
     <Tooltip>
       <TooltipTrigger

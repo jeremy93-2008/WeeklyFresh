@@ -36,7 +36,8 @@ function toDateString(date: Date) {
   return format(date, "yyyy-MM-dd");
 }
 
-export function WeekSelector({ basePath, selectedWeek }: WeekSelectorProps) {
+export function WeekSelector(props: WeekSelectorProps) {
+  const { basePath, selectedWeek } = props;
   const router = useRouter();
   const currentMonday = getMonday(new Date());
   const selected = selectedWeek ? getMonday(new Date(selectedWeek)) : currentMonday;

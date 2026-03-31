@@ -4,7 +4,12 @@ import { useAuth, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import { LogIn } from "lucide-react";
 
-export function AuthButton({ variant = "default" }: { variant?: "default" | "compact" }) {
+interface AuthButtonProps {
+  variant?: "default" | "compact";
+}
+
+export function AuthButton(props: AuthButtonProps) {
+  const { variant = "default" } = props;
   const { isSignedIn, isLoaded } = useAuth();
 
   if (!isLoaded) return null;

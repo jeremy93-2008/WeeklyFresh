@@ -13,13 +13,8 @@ interface InstructionsSectionProps {
   onMove: (idx: number, dir: -1 | 1) => void;
 }
 
-export function InstructionsSection({
-  rows,
-  onUpdate,
-  onAdd,
-  onRemove,
-  onMove,
-}: InstructionsSectionProps) {
+export function InstructionsSection(props: InstructionsSectionProps) {
+  const { rows, onUpdate, onAdd, onRemove, onMove } = props;
   return (
     <div className="space-y-3">
       {rows.map((row, idx) => (

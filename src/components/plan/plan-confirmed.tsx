@@ -32,7 +32,8 @@ interface PlanConfirmedProps {
   role: "owner" | "viewer" | "editor";
 }
 
-export function PlanConfirmed({ planId, recipes, role }: PlanConfirmedProps) {
+export function PlanConfirmed(props: PlanConfirmedProps) {
+  const { planId, recipes, role } = props;
   const [isPending, startTransition] = useTransition();
   const [dialogOpen, setDialogOpen] = useState(false);
 

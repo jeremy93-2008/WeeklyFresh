@@ -11,12 +11,8 @@ interface BasicInfoSectionProps {
   onPublicChange: (value: boolean) => void;
 }
 
-export function BasicInfoSection({
-  title,
-  onTitleChange,
-  isPublic,
-  onPublicChange,
-}: BasicInfoSectionProps) {
+export function BasicInfoSection(props: BasicInfoSectionProps) {
+  const { title, onTitleChange, isPublic, onPublicChange } = props;
   return (
     <div className="space-y-4">
       <div className="space-y-2">

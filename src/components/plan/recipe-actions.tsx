@@ -20,7 +20,8 @@ interface RecipeActionsProps {
   onAdd?: () => void;
 }
 
-export function RecipeActions({ recipe, onAdd }: RecipeActionsProps) {
+export function RecipeActions(props: RecipeActionsProps) {
+  const { recipe, onAdd } = props;
   const router = useRouter();
 
   return (

@@ -49,7 +49,8 @@ const ROLE_ICONS: Record<string, typeof Eye> = {
   editor: Pencil,
 };
 
-export function PlanMembers({ planId, members, isOwner }: PlanMembersProps) {
+export function PlanMembers(props: PlanMembersProps) {
+  const { planId, members, isOwner } = props;
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [roleLabel, setRoleLabel] = useState("Editar");

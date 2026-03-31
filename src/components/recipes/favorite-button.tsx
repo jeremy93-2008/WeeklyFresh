@@ -14,11 +14,8 @@ interface FavoriteButtonProps {
   size?: "sm" | "default";
 }
 
-export function FavoriteButton({
-  recipeId,
-  isFavorite,
-  size = "default",
-}: FavoriteButtonProps) {
+export function FavoriteButton(props: FavoriteButtonProps) {
+  const { recipeId, isFavorite, size = "default" } = props;
   const { isSignedIn } = useAuth();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();

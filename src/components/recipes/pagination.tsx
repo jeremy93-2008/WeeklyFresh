@@ -10,7 +10,8 @@ interface PaginationProps {
   totalPages: number;
 }
 
-export function Pagination({ page, totalPages }: PaginationProps) {
+export function Pagination(props: PaginationProps) {
+  const { page, totalPages } = props;
   const router = useRouter();
   const searchParams = useSearchParams();
 

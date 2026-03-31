@@ -13,7 +13,8 @@ interface RecipeGridProps {
   view?: "grid" | "list";
 }
 
-export function RecipeGrid({ recipes, view = "grid" }: RecipeGridProps) {
+export function RecipeGrid(props: RecipeGridProps) {
+  const { recipes, view = "grid" } = props;
   if (recipes.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">

@@ -14,16 +14,8 @@ interface ReviewSectionProps {
   onSubmit: () => void;
 }
 
-export function ReviewSection({
-  title,
-  isPublic,
-  ingredients,
-  instructions,
-  utensils,
-  isEditing,
-  isPending,
-  onSubmit,
-}: ReviewSectionProps) {
+export function ReviewSection(props: ReviewSectionProps) {
+  const { title, isPublic, ingredients, instructions, utensils, isEditing, isPending, onSubmit } = props;
   return (
     <div className="space-y-4">
       <div>

@@ -3,7 +3,12 @@
 import { useEffect } from "react";
 import { toast } from "sonner";
 
-export function InviteToast({ count }: { count: number }) {
+interface InviteToastProps {
+  count: number;
+}
+
+export function InviteToast(props: InviteToastProps) {
+  const { count } = props;
   useEffect(() => {
     if (count > 0) {
       toast.success(
