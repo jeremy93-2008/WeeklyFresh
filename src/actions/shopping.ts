@@ -5,10 +5,17 @@ import { db } from "@/db";
 import {
   weeklyPlanIngredientChecks,
   weeklyPlanCustomItems,
-  weeklyPlans,
 } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { getPlanForUser } from "@/lib/plan-permissions";
+
+async function requireEditor(planId: number, userId: string) {
+  const access = await getPlanForUser(planId, userId);
+  if (!access) throw new Error("Plan no encontrado");
+  if (access.role === "viewer") throw new Error("No tienes permisos de edición");
+  return access;
+}
 
 export async function toggleIngredientCheck(
   planId: number,
@@ -16,12 +23,7 @@ export async function toggleIngredientCheck(
 ) {
   const { userId } = await auth();
   if (!userId) throw new Error("No autenticado");
-
-  // Verify ownership
-  const plan = await db.query.weeklyPlans.findFirst({
-    where: and(eq(weeklyPlans.id, planId), eq(weeklyPlans.userId, userId)),
-  });
-  if (!plan) throw new Error("Plan no encontrado");
+  await requireEditor(planId, userId);
 
   const check = await db.query.weeklyPlanIngredientChecks.findFirst({
     where: and(
@@ -54,14 +56,7 @@ export async function toggleCustomItemCheck(itemId: number) {
   });
   if (!item) throw new Error("Item no encontrado");
 
-  // Verify ownership via plan
-  const plan = await db.query.weeklyPlans.findFirst({
-    where: and(
-      eq(weeklyPlans.id, item.planId),
-      eq(weeklyPlans.userId, userId)
-    ),
-  });
-  if (!plan) throw new Error("Plan no encontrado");
+  await requireEditor(item.planId, userId);
 
   await db
     .update(weeklyPlanCustomItems)
@@ -74,11 +69,7 @@ export async function toggleCustomItemCheck(itemId: number) {
 export async function addCustomItem(planId: number, name: string) {
   const { userId } = await auth();
   if (!userId) throw new Error("No autenticado");
-
-  const plan = await db.query.weeklyPlans.findFirst({
-    where: and(eq(weeklyPlans.id, planId), eq(weeklyPlans.userId, userId)),
-  });
-  if (!plan) throw new Error("Plan no encontrado");
+  await requireEditor(planId, userId);
 
   await db.insert(weeklyPlanCustomItems).values({
     planId,
@@ -98,13 +89,7 @@ export async function removeCustomItem(itemId: number) {
   });
   if (!item) throw new Error("Item no encontrado");
 
-  const plan = await db.query.weeklyPlans.findFirst({
-    where: and(
-      eq(weeklyPlans.id, item.planId),
-      eq(weeklyPlans.userId, userId)
-    ),
-  });
-  if (!plan) throw new Error("Plan no encontrado");
+  await requireEditor(item.planId, userId);
 
   await db
     .delete(weeklyPlanCustomItems)

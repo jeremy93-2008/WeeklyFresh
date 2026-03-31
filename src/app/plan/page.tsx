@@ -5,6 +5,8 @@ import { getRecipes } from "@/queries/recipes";
 import { WeekSelector } from "@/components/plan/week-selector";
 import { PlanBuilder } from "@/components/plan/plan-builder";
 import { PlanConfirmed } from "@/components/plan/plan-confirmed";
+import { PlanMembers } from "@/components/plan/plan-members";
+import { Badge } from "@/components/ui/badge";
 
 interface Props {
   searchParams: Promise<{ week?: string }>;
@@ -25,12 +27,30 @@ export default async function PlanPage({ searchParams }: Props) {
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 p-4">
-      <h1 className="text-2xl font-bold">Plan Semanal</h1>
+      <div className="flex items-center gap-3">
+        <h1 className="text-2xl font-bold flex-1">Plan Semanal</h1>
+        {plan && plan.role !== "owner" && (
+          <Badge variant="secondary">
+            Plan compartido
+          </Badge>
+        )}
+        {plan && (
+          <PlanMembers
+            planId={plan.id}
+            members={plan.members}
+            isOwner={plan.role === "owner"}
+          />
+        )}
+      </div>
 
       <WeekSelector basePath="/plan" selectedWeek={weekStart} />
 
       {plan ? (
-        <PlanConfirmed planId={plan.id} recipes={plan.recipes} />
+        <PlanConfirmed
+          planId={plan.id}
+          recipes={plan.recipes}
+          role={plan.role}
+        />
       ) : (
         <PlanBuilderWrapper weekStart={weekStart} userId={userId} />
       )}

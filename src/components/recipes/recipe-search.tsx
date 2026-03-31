@@ -34,7 +34,7 @@ export function RecipeSearch({ utensilOptions }: RecipeSearchProps) {
   const currentView = searchParams.get("vista") ?? "grid";
   const currentUtensil = searchParams.get("utensilio") ?? "";
 
-  const searchTimer = useRef<ReturnType<typeof setTimeout>>();
+  const searchTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   function navigate(updates: Record<string, string>, resetPage = true) {
     const params = new URLSearchParams(searchParams.toString());

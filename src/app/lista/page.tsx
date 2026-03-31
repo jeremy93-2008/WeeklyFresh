@@ -8,6 +8,7 @@ import { WeekSelector } from "@/components/plan/week-selector";
 import { IngredientCheck } from "@/components/shopping/ingredient-check";
 import { CustomItemSection } from "@/components/shopping/custom-item-section";
 import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 
 interface Props {
   searchParams: Promise<{ week?: string }>;
@@ -38,6 +39,13 @@ export default async function ListaPage({ searchParams }: Props) {
           <Link href="/plan" className="text-primary hover:underline text-sm">
             Ir a Plan Semanal
           </Link>
+        </div>
+      ) : data.restricted ? (
+        <div className="text-center py-12 text-muted-foreground">
+          <p>No tienes acceso a la lista de compra de este plan.</p>
+          <p className="text-sm mt-1">
+            Pide al propietario que te dé permisos de edición.
+          </p>
         </div>
       ) : (
         <div className="space-y-6">

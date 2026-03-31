@@ -29,9 +29,10 @@ interface PlanRecipe {
 interface PlanConfirmedProps {
   planId: number;
   recipes: PlanRecipe[];
+  role: "owner" | "viewer" | "editor";
 }
 
-export function PlanConfirmed({ planId, recipes }: PlanConfirmedProps) {
+export function PlanConfirmed({ planId, recipes, role }: PlanConfirmedProps) {
   const [isPending, startTransition] = useTransition();
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -123,41 +124,45 @@ export function PlanConfirmed({ planId, recipes }: PlanConfirmedProps) {
         </div>
       )}
 
-      {/* Reset button */}
-      <Button
-        variant="destructive"
-        className="w-full"
-        onClick={() => setDialogOpen(true)}
-      >
-        <RotateCcw className="mr-2 h-4 w-4" />
-        Reiniciar Plan
-      </Button>
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Reiniciar plan semanal</DialogTitle>
-            <DialogDescription>
-              Se eliminarán todas las recetas del plan y la lista de compra
-              asociada. Esta acción no se puede deshacer.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setDialogOpen(false)}
-            >
-              Cancelar
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleReset}
-              disabled={isPending}
-            >
-              {isPending ? "Reiniciando..." : "Reiniciar"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Reset button — only for owner */}
+      {role === "owner" && (
+        <>
+          <Button
+            variant="destructive"
+            className="w-full"
+            onClick={() => setDialogOpen(true)}
+          >
+            <RotateCcw className="mr-2 h-4 w-4" />
+            Reiniciar Plan
+          </Button>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Reiniciar plan semanal</DialogTitle>
+                <DialogDescription>
+                  Se eliminarán todas las recetas del plan y la lista de compra
+                  asociada. Esta acción no se puede deshacer.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => setDialogOpen(false)}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={handleReset}
+                  disabled={isPending}
+                >
+                  {isPending ? "Reiniciando..." : "Reiniciar"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </>
+      )}
     </div>
   );
 }

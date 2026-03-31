@@ -6,18 +6,14 @@ import {
   ingredients,
   weeklyPlanIngredientChecks,
   weeklyPlanCustomItems,
+  planMembers,
 } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
+import { getUserPlanForWeek, type PlanRole } from "@/lib/plan-permissions";
 
 export async function getPlan(userId: string, weekStart: string) {
-  const plan = await db.query.weeklyPlans.findFirst({
-    where: and(
-      eq(weeklyPlans.userId, userId),
-      eq(weeklyPlans.weekStart, weekStart)
-    ),
-  });
-
-  if (!plan) return null;
+  const access = await getUserPlanForWeek(userId, weekStart);
+  if (!access) return null;
 
   const planRecipes = await db
     .select({
@@ -28,25 +24,25 @@ export async function getPlan(userId: string, weekStart: string) {
     })
     .from(weeklyPlanRecipes)
     .innerJoin(recipes, eq(weeklyPlanRecipes.recipeId, recipes.id))
-    .where(eq(weeklyPlanRecipes.planId, plan.id));
+    .where(eq(weeklyPlanRecipes.planId, access.plan.id));
 
   return {
-    ...plan,
+    ...access.plan,
+    role: access.role,
+    members: access.members,
     recipes: planRecipes,
   };
 }
 
 export async function getShoppingList(userId: string, weekStart: string) {
-  const plan = await db.query.weeklyPlans.findFirst({
-    where: and(
-      eq(weeklyPlans.userId, userId),
-      eq(weeklyPlans.weekStart, weekStart)
-    ),
-  });
+  const access = await getUserPlanForWeek(userId, weekStart);
+  if (!access) return null;
 
-  if (!plan) return null;
+  // Viewers can't access shopping list
+  if (access.role === "viewer") return { restricted: true as const };
 
-  // Get all ingredient checks with ingredient and recipe info
+  const plan = access.plan;
+
   const checks = await db
     .select({
       ingredientId: weeklyPlanIngredientChecks.ingredientId,
@@ -68,7 +64,6 @@ export async function getShoppingList(userId: string, weekStart: string) {
     .where(eq(weeklyPlanIngredientChecks.planId, plan.id))
     .orderBy(recipes.title, ingredients.name);
 
-  // Group by recipe
   const recipeGroups = new Map<
     number,
     {
@@ -98,7 +93,9 @@ export async function getShoppingList(userId: string, weekStart: string) {
     .orderBy(weeklyPlanCustomItems.name);
 
   return {
+    restricted: false as const,
     planId: plan.id,
+    role: access.role,
     recipeGroups: Array.from(recipeGroups.values()),
     customItems,
   };

@@ -114,6 +114,28 @@ export const weeklyPlansRelations = relations(weeklyPlans, ({ many }) => ({
   recipes: many(weeklyPlanRecipes),
   ingredientChecks: many(weeklyPlanIngredientChecks),
   customItems: many(weeklyPlanCustomItems),
+  members: many(planMembers),
+}));
+
+export const planMembers = pgTable(
+  "plan_members",
+  {
+    id: serial("id").primaryKey(),
+    planId: integer("plan_id")
+      .notNull()
+      .references(() => weeklyPlans.id, { onDelete: "cascade" }),
+    userId: text("user_id"),
+    email: text("email").notNull(),
+    role: text("role").notNull(), // "viewer" | "editor"
+  },
+  (t) => [uniqueIndex("plan_members_plan_email_idx").on(t.planId, t.email)]
+);
+
+export const planMembersRelations = relations(planMembers, ({ one }) => ({
+  plan: one(weeklyPlans, {
+    fields: [planMembers.planId],
+    references: [weeklyPlans.id],
+  }),
 }));
 
 export const weeklyPlanRecipes = pgTable(
