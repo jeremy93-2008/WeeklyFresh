@@ -13,7 +13,7 @@ import { Badge } from '@/_components/ui/badge'
 import { removeMember, updateMemberRole } from '@/_server/actions/members'
 import { toast } from 'sonner'
 import { handleActionError } from '@/_lib/error-utils'
-import { ROLE_MAP } from './constants'
+import { LABEL_TO_KEY } from './constants'
 import { MemberListItem } from './_components/member-list-item.client'
 import { InviteForm } from './_components/invite-form.client'
 import type { IMember } from './types'
@@ -41,7 +41,7 @@ export function PlanMembers(props: IPlanMembersProps) {
     }
 
     function handleRoleChange(memberId: number, newLabel: string) {
-        const roleKey = ROLE_MAP[newLabel]?.key
+        const roleKey = LABEL_TO_KEY[newLabel]
         if (!roleKey) return
         startTransition(async () => {
             try {

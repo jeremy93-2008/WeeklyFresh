@@ -1,3 +1,5 @@
+import type { IRecipe } from '@db/types'
+
 export interface ISelectedRecipe {
     recipeId: number
     title: string
@@ -5,9 +7,7 @@ export interface ISelectedRecipe {
     dayOfWeek: number | null
 }
 
-export interface IAvailableRecipe {
-    id: number
-    title: string
-    image: string | null
-    isHellofresh: boolean
-}
+export type IAvailableRecipe = Pick<
+    IRecipe,
+    'id' | 'title' | 'image' | 'isHellofresh'
+>

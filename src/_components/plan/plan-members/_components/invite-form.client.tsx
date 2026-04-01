@@ -13,7 +13,7 @@ import {
 import { inviteMember } from '@/_server/actions/members'
 import { toast } from 'sonner'
 import { handleActionError } from '@/_lib/error-utils'
-import { ROLE_MAP } from '../constants'
+import { ROLE_OPTIONS, DEFAULT_ROLE, LABEL_TO_KEY } from '../constants'
 
 interface IInviteFormProps {
     planId: number
@@ -24,11 +24,11 @@ interface IInviteFormProps {
 export function InviteForm(props: IInviteFormProps) {
     const { planId, isPending, onInvited } = props
     const [email, setEmail] = useState('')
-    const [roleLabel, setRoleLabel] = useState('Editar')
+    const [roleLabel, setRoleLabel] = useState(DEFAULT_ROLE.label)
 
     function handleInvite() {
         if (!email.trim()) return
-        const roleKey = ROLE_MAP[roleLabel]?.key ?? 'editor'
+        const roleKey = LABEL_TO_KEY[roleLabel] ?? DEFAULT_ROLE.key
         onInvited(async () => {
             try {
                 await inviteMember({ planId, email, role: roleKey })
@@ -58,8 +58,11 @@ export function InviteForm(props: IInviteFormProps) {
                     <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                    <SelectItem value="Ver">Ver</SelectItem>
-                    <SelectItem value="Editar">Editar</SelectItem>
+                    {ROLE_OPTIONS.map((r) => (
+                        <SelectItem key={r.key} value={r.label}>
+                            {r.label}
+                        </SelectItem>
+                    ))}
                 </SelectContent>
             </Select>
             <Button

@@ -10,7 +10,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/_components/ui/select'
-import { KEY_TO_LABEL, ROLE_ICONS } from '../constants'
+import { KEY_TO_LABEL, ROLE_ICONS, ROLE_OPTIONS } from '../constants'
 import { Eye } from 'lucide-react'
 import type { IMember } from '../types'
 
@@ -45,8 +45,11 @@ export function MemberListItem(props: IMemberListItemProps) {
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="Ver">Ver</SelectItem>
-                            <SelectItem value="Editar">Editar</SelectItem>
+                            {ROLE_OPTIONS.map((r) => (
+                                <SelectItem key={r.key} value={r.label}>
+                                    {r.label}
+                                </SelectItem>
+                            ))}
                         </SelectContent>
                     </Select>
                     <Button

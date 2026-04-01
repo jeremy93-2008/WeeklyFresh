@@ -1,15 +1,13 @@
+import type { IRecipe } from '@db/types'
 import { RecipeCard } from './recipe-card'
 
-interface IRecipe {
-    id: number
-    title: string
-    image: string | null
-    isHellofresh: boolean
-    isFavorite: boolean
-}
+export type IRecipeListItem = Pick<
+    IRecipe,
+    'id' | 'title' | 'image' | 'isHellofresh'
+> & { isFavorite: boolean }
 
 interface IRecipeGridProps {
-    recipes: IRecipe[]
+    recipes: IRecipeListItem[]
     view?: 'grid' | 'list'
 }
 

@@ -4,15 +4,10 @@ import { getImageUrl } from '@/_lib/image-utils'
 import { TruncatedText } from '@/_components/ui/truncated-text.client'
 import { HelloFreshBadge } from './hellofresh-badge'
 import { FavoriteButton } from './favorite-button.client'
+import type { IRecipeListItem } from './recipe-grid'
 
 interface IRecipeCardProps {
-    recipe: {
-        id: number
-        title: string
-        image: string | null
-        isHellofresh: boolean
-        isFavorite: boolean
-    }
+    recipe: IRecipeListItem
     variant?: 'grid' | 'list'
 }
 

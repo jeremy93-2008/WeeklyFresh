@@ -61,15 +61,6 @@ export function useRecipeForm(initialData?: IRecipeFormData) {
     }
 
     function handleSubmit() {
-        if (!title.trim()) {
-            toast.error('El título es requerido')
-            return
-        }
-        if (validIngredients.length === 0) {
-            toast.error('Agrega al menos un ingrediente')
-            return
-        }
-
         startTransition(async () => {
             try {
                 const payload = {
