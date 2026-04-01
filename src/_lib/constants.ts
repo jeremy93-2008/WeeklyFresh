@@ -22,6 +22,12 @@ export const DAY_NAMES = [
     'Domingo',
 ] as const
 
+export const PLAN_ROLES = ['viewer', 'editor', 'owner'] as const
+export type IPlanRole = (typeof PLAN_ROLES)[number]
+
+export const ASSIGNABLE_ROLES = ['viewer', 'editor'] as const
+export type IAssignableRole = (typeof ASSIGNABLE_ROLES)[number]
+
 export const DAY_NAMES_SHORT = [
     'Lun',
     'Mar',

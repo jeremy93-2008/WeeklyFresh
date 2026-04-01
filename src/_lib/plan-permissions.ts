@@ -1,12 +1,11 @@
 import { db } from '@db'
 import { weeklyPlans, planMembers } from '@db/schema'
 import { eq, and, or } from 'drizzle-orm'
+import type { IPlanRole } from '@/_lib/constants'
 
-export type PlanRole = 'owner' | 'viewer' | 'editor'
-
-interface IPlanAccess {
+export interface IPlanAccess {
     plan: typeof weeklyPlans.$inferSelect
-    role: PlanRole
+    role: IPlanRole
 }
 
 export async function getPlanForUser(
@@ -33,7 +32,7 @@ export async function getPlanForUser(
     })
 
     if (member) {
-        return { plan, role: member.role as PlanRole }
+        return { plan, role: member.role as IPlanRole }
     }
 
     return null
@@ -83,7 +82,7 @@ export async function getUserPlanForWeek(
             .select()
             .from(planMembers)
             .where(eq(planMembers.planId, plan.id))
-        return { plan, role: member.role as PlanRole, members }
+        return { plan, role: member.role as IPlanRole, members }
     }
 
     return null

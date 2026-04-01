@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { TruncatedText } from '@/_components/ui/truncated-text.client'
 import { DAY_NAMES } from '@/_lib/constants'
 import { getImageUrl } from '@/_lib/image-utils'
+import type { IPlanRole } from '@/_lib/constants'
 import { IPlanRecipe } from './types'
 import { DayCard } from './_components/day-card'
 import { ResetPlanDialog } from './_components/reset-plan-dialog.client'
@@ -12,7 +13,7 @@ import { ResetPlanDialog } from './_components/reset-plan-dialog.client'
 interface IPlanConfirmedProps {
     planId: number
     recipes: IPlanRecipe[]
-    role: 'owner' | 'viewer' | 'editor'
+    role: IPlanRole
 }
 
 export function PlanConfirmed(props: IPlanConfirmedProps) {

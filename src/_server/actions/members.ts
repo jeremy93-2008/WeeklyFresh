@@ -4,6 +4,7 @@ import { clerkClient } from '@clerk/nextjs/server'
 import { db, planMembers } from '@db'
 import { eq, and } from 'drizzle-orm'
 import { requireAuth, requirePlanAccess } from '@/_server/middleware'
+import type { IAssignableRole } from '@/_lib/constants'
 import { inviteMemberSchema, type IInviteMemberInput } from '@/_server/schemas'
 import { revalidatePlan } from '@/_server/cache'
 
@@ -81,7 +82,7 @@ export async function removeMember(planId: number, memberId: number) {
 export async function updateMemberRole(
     planId: number,
     memberId: number,
-    role: 'viewer' | 'editor'
+    role: IAssignableRole
 ) {
     const userId = await requireAuth()
     await requirePlanAccess(planId, userId, 'owner')

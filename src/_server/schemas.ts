@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { ASSIGNABLE_ROLES } from '@/_lib/constants'
 
 export const recipeInputSchema = z.object({
     title: z.string().min(1, 'El título es requerido'),
@@ -45,7 +46,7 @@ export const confirmPlanSchema = z.object({
 export const inviteMemberSchema = z.object({
     planId: z.number(),
     email: z.string().email('Email inválido'),
-    role: z.enum(['viewer', 'editor']),
+    role: z.enum(ASSIGNABLE_ROLES),
 })
 
 export type IRecipeInput = z.infer<typeof recipeInputSchema>

@@ -1,9 +1,6 @@
 import { auth } from '@clerk/nextjs/server'
 import { getPlanForUser } from '@/_lib/plan-permissions'
-
-export type IPlanRole = 'viewer' | 'editor' | 'owner'
-
-const ROLE_HIERARCHY: IPlanRole[] = ['viewer', 'editor', 'owner']
+import { PLAN_ROLES, type IPlanRole } from '@/_lib/constants'
 
 export async function requireAuth(): Promise<string> {
     const { userId } = await auth()
@@ -19,8 +16,8 @@ export async function requirePlanAccess(
     const access = await getPlanForUser(planId, userId)
     if (!access) throw new Error('Plan no encontrado')
 
-    const userLevel = ROLE_HIERARCHY.indexOf(access.role as IPlanRole)
-    const requiredLevel = ROLE_HIERARCHY.indexOf(minRole)
+    const userLevel = PLAN_ROLES.indexOf(access.role)
+    const requiredLevel = PLAN_ROLES.indexOf(minRole)
 
     if (userLevel < requiredLevel) {
         throw new Error('No tienes permisos suficientes')
