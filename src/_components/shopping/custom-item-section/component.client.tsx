@@ -1,18 +1,12 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { Plus, X } from 'lucide-react'
-import { Checkbox } from '@/_components/ui/checkbox'
+import { Plus } from 'lucide-react'
 import { Input } from '@/_components/ui/input'
 import { Button } from '@/_components/ui/button'
-import {
-    addCustomItem,
-    removeCustomItem,
-    toggleCustomItemCheck,
-} from '@/_server/actions/shopping'
-import { useOptimisticAction } from '@/_hooks/use-optimistic-action'
+import { addCustomItem } from '@/_server/actions/shopping'
 import { handleActionError } from '@/_lib/error-utils'
-import { cn } from '@/_lib/utils'
+import { CustomItemRow } from './_components/custom-item-row.client'
 
 interface ICustomItem {
     id: number
@@ -71,53 +65,6 @@ export function CustomItemSection(props: ICustomItemSectionProps) {
                     <Plus className="h-4 w-4" />
                 </Button>
             </div>
-        </div>
-    )
-}
-
-interface ICustomItemRowProps {
-    item: ICustomItem
-}
-
-function CustomItemRow(props: ICustomItemRowProps) {
-    const { item } = props
-    const [isPending, startTransition] = useTransition()
-
-    const { value: optimisticChecked, run: toggle } = useOptimisticAction(
-        item.checked,
-        () => toggleCustomItemCheck(item.id)
-    )
-
-    function handleRemove() {
-        startTransition(async () => {
-            await removeCustomItem(item.id)
-        })
-    }
-
-    return (
-        <div className="flex items-center gap-3 py-1">
-            <Checkbox
-                checked={optimisticChecked}
-                onCheckedChange={() => toggle(!optimisticChecked)}
-                disabled={isPending}
-            />
-            <span
-                className={cn(
-                    'flex-1 text-sm',
-                    optimisticChecked && 'line-through text-muted-foreground'
-                )}
-            >
-                {item.name}
-            </span>
-            <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6"
-                onClick={handleRemove}
-                disabled={isPending}
-            >
-                <X className="h-3 w-3" />
-            </Button>
         </div>
     )
 }

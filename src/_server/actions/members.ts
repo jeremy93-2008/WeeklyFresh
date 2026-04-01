@@ -29,18 +29,7 @@ export async function inviteMember(input: IInviteMemberInput) {
         limit: 1,
     })
 
-    if (users.data.length > 0) {
-        const invitedUser = users.data[0]
-        if (invitedUser.id === userId)
-            throw new Error('No puedes invitarte a ti mismo')
-
-        await db.insert(planMembers).values({
-            planId,
-            userId: invitedUser.id,
-            email: normalizedEmail,
-            role,
-        })
-    } else {
+    if (users.data.length === 0) {
         await db.insert(planMembers).values({
             planId,
             userId: null,
@@ -57,7 +46,21 @@ export async function inviteMember(input: IInviteMemberInput) {
         } catch {
             // Invitation may already exist
         }
+
+        revalidatePlan()
+        return
     }
+
+    const invitedUser = users.data[0]
+    if (invitedUser.id === userId)
+        throw new Error('No puedes invitarte a ti mismo')
+
+    await db.insert(planMembers).values({
+        planId,
+        userId: invitedUser.id,
+        email: normalizedEmail,
+        role,
+    })
 
     revalidatePlan()
 }

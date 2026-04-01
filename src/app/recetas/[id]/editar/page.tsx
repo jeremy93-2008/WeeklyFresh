@@ -4,7 +4,7 @@ import { getRecipeById } from '@/_server/queries/recipes'
 import {
     RecipeForm,
     type IRecipeFormData,
-} from '@/_components/custom-recipe/recipe-form.client'
+} from '@/_components/custom-recipe/component.client'
 
 interface IProps {
     params: Promise<{ id: string }>

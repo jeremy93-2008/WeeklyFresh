@@ -1,5 +1,6 @@
 import { auth } from '@clerk/nextjs/server'
-import { getRecipes, getDistinctUtensils } from '@/_server/queries/recipes'
+import { getRecipes } from '@/_server/queries/recipes'
+import { getDistinctUtensils } from '@/_server/queries/utensils'
 import { RecipeSearch } from '@/_components/recipes/recipe-search.client'
 import { RecipeGrid } from '@/_components/recipes/recipe-grid'
 import { Pagination } from '@/_components/recipes/pagination.client'

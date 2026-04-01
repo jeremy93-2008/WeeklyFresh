@@ -10,12 +10,12 @@ import {
     AccordionTrigger,
 } from '@/_components/ui/accordion'
 import { useRecipeForm, type IRecipeFormData } from '@/_hooks/use-recipe-form'
-import { BasicInfoSection } from './basic-info-section.client'
-import { IngredientsSection } from './ingredients-section.client'
-import { InstructionsSection } from './instructions-section.client'
-import { UtensilsSection } from './utensils-section.client'
-import { ImageUploadSection } from './image-upload-section.client'
-import { ReviewSection } from './review-section.client'
+import { BasicInfoSection } from './_components/basic-info-section.client'
+import { IngredientsSection } from './_components/ingredients-section.client'
+import { InstructionsSection } from './_components/instructions-section.client'
+import { UtensilsSection } from './_components/utensils-section.client'
+import { ImageUploadSection } from './_components/image-upload-section.client'
+import { ReviewSection } from './_components/review-section.client'
 
 export type { IRecipeFormData }
 

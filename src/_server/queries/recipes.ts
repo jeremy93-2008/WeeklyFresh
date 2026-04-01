@@ -140,11 +140,3 @@ export async function getRecipeById(id: number, userId?: string | null) {
 
     return { ...recipe, isFavorite }
 }
-
-export async function getDistinctUtensils() {
-    const result = await db
-        .selectDistinct({ text: utensils.text })
-        .from(utensils)
-        .orderBy(utensils.text)
-    return result.map((r) => r.text)
-}

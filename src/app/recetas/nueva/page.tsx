@@ -1,4 +1,4 @@
-import { RecipeForm } from '@/_components/custom-recipe/recipe-form.client'
+import { RecipeForm } from '@/_components/custom-recipe/component.client'
 
 export default function NuevaRecetaPage() {
     return (
