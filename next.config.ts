@@ -1,18 +1,18 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "media.hellofresh.com",
-      },
-      {
-        protocol: "https",
-        hostname: "*.public.blob.vercel-storage.com",
-      },
-    ],
-  },
-};
+    images: {
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: 'media.hellofresh.com',
+            },
+            {
+                protocol: 'https',
+                hostname: '*.public.blob.vercel-storage.com',
+            },
+        ],
+    },
+}
 
-export default nextConfig;
+export default nextConfig

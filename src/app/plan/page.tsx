@@ -1,88 +1,74 @@
-import { auth, currentUser } from "@clerk/nextjs/server";
-import { startOfWeek, format } from "date-fns";
-import { resolveInvites } from "@/lib/resolve-invites";
-import { getPlan } from "@/queries/plans";
-import { getRecipes } from "@/queries/recipes";
-import { WeekSelector } from "@/components/plan/week-selector";
-import { PlanBuilder } from "@/components/plan/plan-builder";
-import { PlanConfirmed } from "@/components/plan/plan-confirmed";
-import { PlanMembers } from "@/components/plan/plan-members";
-import { Badge } from "@/components/ui/badge";
-import { InviteToast } from "@/components/layout/invite-toast";
+import { getPlanPageSetup } from '@/_server/queries/page-setup'
+import { getPlan } from '@/_server/queries/plans'
+import { getRecipes } from '@/_server/queries/recipes'
+import { WeekSelector } from '@/_components/plan/week-selector.client'
+import { PlanBuilder } from '@/_components/plan/plan-builder.client'
+import { PlanConfirmed } from '@/_components/plan/plan-confirmed.client'
+import { PlanMembers } from '@/_components/plan/plan-members.client'
+import { Badge } from '@/_components/ui/badge'
+import { InviteToast } from '@/_components/layout/invite-toast.client'
 
-interface Props {
-  searchParams: Promise<{ week?: string }>;
+interface IProps {
+    searchParams: Promise<{ week?: string }>
 }
 
-export default async function PlanPage({ searchParams }: Props) {
-  const params = await searchParams;
-  const { userId } = await auth();
-  if (!userId) return null;
+export default async function PlanPage({ searchParams }: IProps) {
+    const params = await searchParams
+    const setup = await getPlanPageSetup(params.week)
+    if (!setup) return null
 
-  // Resolve any pending invites for this user
-  const user = await currentUser();
-  const email = user?.emailAddresses?.[0]?.emailAddress;
-  const resolvedCount = email ? await resolveInvites(userId, email) : 0;
+    const { userId, weekStart, resolvedCount } = setup
+    const plan = await getPlan(userId, weekStart)
 
-  const currentMonday = format(
-    startOfWeek(new Date(), { weekStartsOn: 1 }),
-    "yyyy-MM-dd"
-  );
-  const weekStart = params.week ?? currentMonday;
+    return (
+        <div className="mx-auto max-w-6xl space-y-6 p-4">
+            <InviteToast count={resolvedCount} />
+            <div className="flex items-center gap-3">
+                <h1 className="text-2xl font-bold flex-1">Plan Semanal</h1>
+                {plan && plan.role !== 'owner' && (
+                    <Badge variant="secondary">Plan compartido</Badge>
+                )}
+                {plan && (
+                    <PlanMembers
+                        planId={plan.id}
+                        members={plan.members}
+                        isOwner={plan.role === 'owner'}
+                    />
+                )}
+            </div>
 
-  const plan = await getPlan(userId, weekStart);
+            <WeekSelector basePath="/plan" selectedWeek={weekStart} />
 
-  return (
-    <div className="mx-auto max-w-6xl space-y-6 p-4">
-      <InviteToast count={resolvedCount} />
-      <div className="flex items-center gap-3">
-        <h1 className="text-2xl font-bold flex-1">Plan Semanal</h1>
-        {plan && plan.role !== "owner" && (
-          <Badge variant="secondary">
-            Plan compartido
-          </Badge>
-        )}
-        {plan && (
-          <PlanMembers
-            planId={plan.id}
-            members={plan.members}
-            isOwner={plan.role === "owner"}
-          />
-        )}
-      </div>
-
-      <WeekSelector basePath="/plan" selectedWeek={weekStart} />
-
-      {plan ? (
-        <PlanConfirmed
-          planId={plan.id}
-          recipes={plan.recipes}
-          role={plan.role}
-        />
-      ) : (
-        <PlanBuilderWrapper weekStart={weekStart} userId={userId} />
-      )}
-    </div>
-  );
+            {plan ? (
+                <PlanConfirmed
+                    planId={plan.id}
+                    recipes={plan.recipes}
+                    role={plan.role}
+                />
+            ) : (
+                <PlanBuilderWrapper weekStart={weekStart} userId={userId} />
+            )}
+        </div>
+    )
 }
 
 async function PlanBuilderWrapper({
-  weekStart,
-  userId,
+    weekStart,
+    userId,
 }: {
-  weekStart: string;
-  userId: string;
+    weekStart: string
+    userId: string
 }) {
-  const data = await getRecipes({ limit: 200, userId });
-  return (
-    <PlanBuilder
-      weekStart={weekStart}
-      availableRecipes={data.recipes.map((r) => ({
-        id: r.id,
-        title: r.title,
-        image: r.image,
-        isHellofresh: r.isHellofresh,
-      }))}
-    />
-  );
+    const data = await getRecipes({ limit: 200, userId })
+    return (
+        <PlanBuilder
+            weekStart={weekStart}
+            availableRecipes={data.recipes.map((r) => ({
+                id: r.id,
+                title: r.title,
+                image: r.image,
+                isHellofresh: r.isHellofresh,
+            }))}
+        />
+    )
 }

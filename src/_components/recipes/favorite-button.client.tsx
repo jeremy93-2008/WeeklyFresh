@@ -1,0 +1,66 @@
+'use client'
+
+import { Heart } from 'lucide-react'
+import { Button } from '@/_components/ui/button'
+import { toggleFavorite } from '@/_server/actions/favorites'
+import { useOptimisticAction } from '@/_hooks/use-optimistic-action'
+import { useAuth } from '@clerk/nextjs'
+import { useRouter } from 'next/navigation'
+import { cn } from '@/_lib/utils'
+
+interface IFavoriteButtonProps {
+    recipeId: number
+    isFavorite: boolean
+    size?: 'sm' | 'default'
+}
+
+export function FavoriteButton(props: IFavoriteButtonProps) {
+    const { recipeId, isFavorite, size = 'default' } = props
+    const { isSignedIn } = useAuth()
+    const router = useRouter()
+
+    const {
+        value: optimisticFavorite,
+        isPending,
+        run: toggle,
+    } = useOptimisticAction(isFavorite, () => toggleFavorite(recipeId))
+
+    function handleClick(e: React.MouseEvent) {
+        e.preventDefault()
+        e.stopPropagation()
+
+        if (!isSignedIn) {
+            router.push('/sign-in')
+            return
+        }
+
+        toggle(!optimisticFavorite)
+    }
+
+    return (
+        <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleClick}
+            disabled={isPending}
+            className={cn(
+                'rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-sm',
+                size === 'sm' ? 'h-8 w-8' : 'h-10 w-10'
+            )}
+            aria-label={
+                optimisticFavorite
+                    ? 'Quitar de favoritos'
+                    : 'Agregar a favoritos'
+            }
+        >
+            <Heart
+                className={cn(
+                    size === 'sm' ? 'h-4 w-4' : 'h-5 w-5',
+                    optimisticFavorite
+                        ? 'fill-red-500 text-red-500'
+                        : 'text-white'
+                )}
+            />
+        </Button>
+    )
+}
