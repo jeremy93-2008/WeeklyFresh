@@ -80,8 +80,8 @@ export function useRecipeForm(initialData?: IRecipeFormData) {
                     instructions: validInstructions,
                     utensils: validUtensils as string[],
                 }
-                if (isEditing) {
-                    await updateRecipe(initialData!.id!, payload)
+                if (isEditing && initialData?.id) {
+                    await updateRecipe(initialData.id, payload)
                     toast.success('Receta actualizada')
                 } else {
                     await createRecipe(payload)

@@ -12,9 +12,7 @@ export async function createRecipe(data: IRecipeInput) {
     const userId = await requireAuth()
     const parsed = recipeInputSchema.parse(data)
 
-    let recipeId: number
-
-    await db.transaction(async (tx) => {
+    const recipeId = await db.transaction(async (tx) => {
         const [recipe] = await tx
             .insert(recipes)
             .values({
@@ -27,12 +25,12 @@ export async function createRecipe(data: IRecipeInput) {
             })
             .returning({ id: recipes.id })
 
-        recipeId = recipe.id
         await insertRecipeDetails(tx, recipe.id, parsed)
+        return recipe.id
     })
 
     revalidateRecipes()
-    redirect(`/recetas/${recipeId!}`)
+    redirect(`/recetas/${recipeId}`)
 }
 
 export async function updateRecipe(recipeId: number, data: IRecipeInput) {

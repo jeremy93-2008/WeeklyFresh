@@ -7,13 +7,13 @@ import {
 } from '@/_components/ui/tooltip'
 import { cn } from '@/_lib/utils'
 
-interface TruncatedTextProps {
+interface ITruncatedTextProps {
     text: string
     className?: string
     maxLines?: 1 | 2
 }
 
-export function TruncatedText(props: TruncatedTextProps) {
+export function TruncatedText(props: ITruncatedTextProps) {
     const { text, className, maxLines = 2 } = props
     return (
         <Tooltip>
