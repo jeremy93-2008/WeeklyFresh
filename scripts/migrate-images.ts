@@ -11,7 +11,7 @@ import path from 'path'
 
 const IMAGES_DIR = path.resolve(
     __dirname,
-    '../../scraping/hello-fresh/scraping/hello-fresh-images'
+    'scripts/data.json'
 )
 
 const DB_URL = process.env.NEON_DATABASE_URL ?? process.env.DATABASE_URL!
