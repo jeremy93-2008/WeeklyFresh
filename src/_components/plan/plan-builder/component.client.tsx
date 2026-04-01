@@ -8,6 +8,7 @@ import { confirmPlan } from '@/_server/actions/plans'
 import { cn } from '@/_lib/utils'
 import { toast } from 'sonner'
 import { handleActionError } from '@/_lib/error-utils'
+import type { IMealTime } from '@/_lib/constants'
 import type { IAvailableRecipe, ISelectedRecipe } from './types'
 import { SelectedRecipeRow } from './_components/selected-recipe-row.client'
 import { RecipeGridCard } from './_components/recipe-grid-card.client'
@@ -42,6 +43,19 @@ export function PlanBuilder(props: IPlanBuilderProps) {
         }
     }, [availableRecipes, selected, searchQuery, page, perPage])
 
+    function isSlotTaken(
+        day: number,
+        mealTime: IMealTime,
+        excludeRecipeId?: number
+    ) {
+        return selected.some(
+            (r) =>
+                r.recipeId !== excludeRecipeId &&
+                r.dayOfWeek === day &&
+                (r.mealTime ?? 'lunch') === mealTime
+        )
+    }
+
     function addRecipe(recipe: IAvailableRecipe) {
         setSelected((prev) => [
             ...prev,
@@ -50,6 +64,7 @@ export function PlanBuilder(props: IPlanBuilderProps) {
                 title: recipe.title,
                 image: recipe.image,
                 dayOfWeek: null,
+                mealTime: null,
             },
         ])
     }
@@ -59,10 +74,48 @@ export function PlanBuilder(props: IPlanBuilderProps) {
     }
 
     function setDay(recipeId: number, day: number | null) {
+        if (day !== null && isSlotTaken(day, 'lunch', recipeId)) {
+            if (isSlotTaken(day, 'dinner', recipeId)) {
+                toast.error('Este día ya tiene almuerzo y cena asignados')
+                return
+            }
+            setSelected((prev) =>
+                prev.map((r) =>
+                    r.recipeId === recipeId
+                        ? { ...r, dayOfWeek: day, mealTime: 'dinner' }
+                        : r
+                )
+            )
+            return
+        }
+
         setSelected((prev) =>
             prev.map((r) =>
-                r.recipeId === recipeId ? { ...r, dayOfWeek: day } : r
+                r.recipeId === recipeId
+                    ? {
+                          ...r,
+                          dayOfWeek: day,
+                          mealTime:
+                              day !== null ? (r.mealTime ?? 'lunch') : null,
+                      }
+                    : r
             )
+        )
+    }
+
+    function setMealTime(recipeId: number, mealTime: IMealTime) {
+        const recipe = selected.find((r) => r.recipeId === recipeId)
+        if (!recipe || recipe.dayOfWeek === null) return
+
+        if (isSlotTaken(recipe.dayOfWeek, mealTime, recipeId)) {
+            toast.error(
+                `Ya hay una receta de ${mealTime === 'lunch' ? 'almuerzo' : 'cena'} para este día`
+            )
+            return
+        }
+
+        setSelected((prev) =>
+            prev.map((r) => (r.recipeId === recipeId ? { ...r, mealTime } : r))
         )
     }
 
@@ -74,6 +127,7 @@ export function PlanBuilder(props: IPlanBuilderProps) {
                     planRecipes: selected.map((r) => ({
                         recipeId: r.recipeId,
                         dayOfWeek: r.dayOfWeek,
+                        mealTime: r.mealTime,
                     })),
                 })
                 toast.success('Plan confirmado')
@@ -96,6 +150,7 @@ export function PlanBuilder(props: IPlanBuilderProps) {
                                 key={recipe.recipeId}
                                 recipe={recipe}
                                 onSetDay={setDay}
+                                onSetMealTime={setMealTime}
                                 onRemove={removeRecipe}
                             />
                         ))}

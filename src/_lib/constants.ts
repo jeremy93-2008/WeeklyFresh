@@ -28,6 +28,9 @@ export type IPlanRole = (typeof PLAN_ROLES)[number]
 export const ASSIGNABLE_ROLES = ['viewer', 'editor'] as const
 export type IAssignableRole = (typeof ASSIGNABLE_ROLES)[number]
 
+export const MEAL_TIMES = ['lunch', 'dinner'] as const
+export type IMealTime = (typeof MEAL_TIMES)[number]
+
 export const DAY_NAMES_SHORT = [
     'Lun',
     'Mar',

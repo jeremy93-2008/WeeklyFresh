@@ -35,6 +35,7 @@ export async function confirmPlan(input: IConfirmPlanInput) {
                 planId: plan.id,
                 recipeId: r.recipeId,
                 dayOfWeek: r.dayOfWeek,
+                mealTime: r.mealTime,
             }))
         )
 

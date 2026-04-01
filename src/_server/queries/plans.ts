@@ -11,6 +11,7 @@ export async function getPlan(userId: string, weekStart: string) {
         .select({
             recipeId: weeklyPlanRecipes.recipeId,
             dayOfWeek: weeklyPlanRecipes.dayOfWeek,
+            mealTime: weeklyPlanRecipes.mealTime,
             title: recipes.title,
             image: recipes.image,
         })

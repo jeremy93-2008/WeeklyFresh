@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { ASSIGNABLE_ROLES } from '@/_lib/constants'
+import { ASSIGNABLE_ROLES, MEAL_TIMES } from '@/_lib/constants'
 
 export const recipeInputSchema = z.object({
     title: z.string().min(1, 'El título es requerido'),
@@ -38,6 +38,7 @@ export const confirmPlanSchema = z.object({
             z.object({
                 recipeId: z.number(),
                 dayOfWeek: z.number().nullable(),
+                mealTime: z.enum(MEAL_TIMES).nullable(),
             })
         )
         .min(1, 'Selecciona al menos una receta'),

@@ -148,6 +148,7 @@ export const weeklyPlanRecipes = pgTable(
             .notNull()
             .references(() => recipes.id, { onDelete: 'cascade' }),
         dayOfWeek: integer('day_of_week'),
+        mealTime: text('meal_time'),
     },
     (t) => [primaryKey({ columns: [t.planId, t.recipeId] })]
 )

@@ -1,0 +1,1 @@
+ALTER TABLE "weekly_plan_recipes" ADD COLUMN "meal_time" text;
