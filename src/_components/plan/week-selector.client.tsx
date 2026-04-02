@@ -20,13 +20,6 @@ interface IWeekSelectorProps {
     selectedWeek?: string
 }
 
-function formatWeekRange(monday: Date) {
-    const sunday = endOfWeek(monday, { weekStartsOn: 1 })
-    const from = format(monday, 'd MMM', { locale: es })
-    const to = format(sunday, 'd MMM', { locale: es })
-    return `${from} - ${to}`
-}
-
 export function WeekSelector(props: IWeekSelectorProps) {
     const { basePath, selectedWeek } = props
     const navigate = useNavigateWithProgress()
@@ -68,8 +61,8 @@ export function WeekSelector(props: IWeekSelectorProps) {
                                     ? 'border-primary bg-primary/10 text-primary font-medium'
                                     : 'border-border hover:bg-muted',
                                 isSameDay(monday, currentMonday) &&
-                                    !isSameDay(monday, selected) &&
-                                    'border-primary/30'
+                                !isSameDay(monday, selected) &&
+                                'border-primary/30'
                             )}
                         >
                             {formatWeekRange(monday)}
@@ -87,4 +80,11 @@ export function WeekSelector(props: IWeekSelectorProps) {
             </Button>
         </div>
     )
+}
+
+function formatWeekRange(monday: Date) {
+    const sunday = endOfWeek(monday, { weekStartsOn: 1 })
+    const from = format(monday, 'd MMM', { locale: es })
+    const to = format(sunday, 'd MMM', { locale: es })
+    return `${from} - ${to}`
 }

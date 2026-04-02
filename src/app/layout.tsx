@@ -5,7 +5,7 @@ import { esES } from '@clerk/localizations'
 import { ThemeProvider } from 'next-themes'
 import { Toaster } from '@/_components/ui/sonner'
 import { TooltipProvider } from '@/_components/ui/tooltip'
-import { AppShell } from '@/_components/layout/app-shell.client'
+import { AppShell } from '@/_components/layout/app-shell/component.client'
 import { NavigationProgress } from '@/_components/layout/navigation-progress.client'
 import './globals.css'
 

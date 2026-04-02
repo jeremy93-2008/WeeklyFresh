@@ -1,9 +1,9 @@
-import { BasicInfoSection } from '../_components/basic-info-section.client'
-import { IngredientsSection } from '../_components/ingredients-section.client'
-import { InstructionsSection } from '../_components/instructions-section.client'
-import { UtensilsSection } from '../_components/utensils-section.client'
-import { ImageUploadSection } from '../_components/image-upload-section.client'
-import { ReviewSection } from '../_components/review-section.client'
+import { BasicInfoSection } from '../_components/section/basic-info-section.client'
+import { IngredientsSection } from '../_components/section/ingredients-section.client'
+import { InstructionsSection } from '../_components/section/instructions-section.client'
+import { UtensilsSection } from '../_components/section/utensils-section.client'
+import { ImageUploadSection } from '../_components/section/image-upload-section.client'
+import { ReviewSection } from '../_components/section/review-section.client'
 import { useRecipeForm } from '@/_hooks/use-recipe-form'
 
 interface IFormSection {
